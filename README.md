@@ -1,2 +1,2 @@
 # resty
-PHP REST Framework
+PHP REST Framework server implementation

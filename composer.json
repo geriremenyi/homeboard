@@ -1,0 +1,18 @@
+{
+  "name": "geriremenyi/resty",
+  "description": "Simple REST API server",
+  "keywords": ["framework", "rest"],
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Gergely Reményi",
+      "email": "gergo@remenyicsalad.hu"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "psr/http-message": "1.0.1"
+  }
+}
