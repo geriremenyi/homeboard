@@ -1,17 +1,8 @@
 <?php
-/**
- * Application.php
- *
- * Description
- *
- * @author      Gergely Reményi <geri@eclectiqminds.com>
- * @copyright   Eclectiq Minds 2015 all rights reserved
- * @package     PeakWeb
- * @subpackage
- * @since       1.0.0
- */
 
 namespace Resty\Utility;
+
+use Resty\Utility\Configuration\Configuration;
 
 /**
  * Application
@@ -25,7 +16,7 @@ namespace Resty\Utility;
 class Application {
 
     public function __construct() {
-        echo 'Bootstrapped';
+
     }
 
 }

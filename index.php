@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+require_once('resty-settings.php');
 
 // Load dependencies
-require_once('vendor/autoload.php');
+$autoloader = require dirname(__DIR__) . '/vendor/autoload.php';
+$autoloader->addPsr4('Resty\\', __DIR__ . '/..', true);
+$autoloader->addPsr4('Application\\', __DIR__ . '/..', true);
 
-// Start application
-require_once('utility/Application.php');
 new \Resty\Utility\Application();

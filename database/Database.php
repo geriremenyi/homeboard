@@ -1,8 +1,7 @@
 <?php
 
 namespace HomeBoard\Framework\Database;
-
-use HomeBoard\Framework\Configuration\Configuration;
+use Resty\Utility\Configuration;
 
 /**
  * Database class
@@ -43,7 +42,7 @@ class Database {
         if(self::$pdo == null) {
 
             // Load database configurations
-            $config = Configuration::getInstance()->getConfigurationValue('db_config');
+            $config = Configuration::getInstance()->getConfiguration('db_config');
 
             // Define all the database dependent driver settings here
             $driverOptions = array(
