@@ -1,12 +1,14 @@
 <?php
 
-namespace Resty\Utility\Configuration;
+namespace Resty\Utility;
+
+use Resty\Exception\HttpException;
 
 /**
  * Configuration
  *
  * Configuration singleton for application wide
- * configuration load and fetch.
+ * configuration load.
  *
  * @package    Resty
  * @subpackage Utility
@@ -50,14 +52,15 @@ class Configuration {
     /**
      * Get a specific configuration value
      *
-     * @param string $type - The type of the variable (containing ini file name)
+     * @param string $type - Configuration variable type
      * @param string $name - The key of the variable
      * @return string
+     * @throws HttpException
      */
-    public function getConfigurationValue(string $type, string $name = null) {
+    public function getConfiguration(string $type, string $name = null) {
         if(array_key_exists($type, $this->configurations)) {
             if($name == null) {
-                // Return with the entire type object
+                // Return with the entire type object if the exact name is not specified
                 return $this->configurations[$type];
             }
             else {
@@ -68,59 +71,25 @@ class Configuration {
             }
         }
 
-        // TODO Otherwise 500 Error
+        // TODO Otherwise 500 Error couldn't find the configuration
+        throw new HttpException();
 
     }
 
     /**
      * Set configuration variables by the ini files (folder path)
      *
-     * @param string $iniFolder - The folder path of the ini files with the '/' symbol at the end
-     * @param bool $forceRefresh - Is force refresh allowed when it is already loaded
+     * @param string $environment - Environment to load the configuration for
+     * @throws HttpException
      */
-    public function setConfigurationsByIniFolder(string $iniFolder = ROOT . DS . 'framework' . DS . 'configuration' . DS, bool $forceRefresh = false) {
-        if(empty($this->configurations)) {
-            $this->loadIniFiles($iniFolder);
-        } else {
-            if($forceRefresh) {
-                $this->loadIniFiles($iniFolder);
-            }
+    public function loadConfigurations(string $environment = ENVIRONMENT) {
+        $iniFile = ROOT . DS . 'configuration' . DS . $environment . '.ini';
+
+        // Try to load the ini file
+        if(!($this->configurations = @parse_ini_file($iniFile, true))) {
+            // TODO throw 500 server error because the  config file can not be parsed
+            throw new HttpException();
         }
-    }
-
-    /**
-     * Load load ini files into variables
-     *
-     * @param string $folder - The folder path of the ini files with the '/' symbol at the end
-     */
-    private function loadIniFiles(string $folder) {
-        $iniFiles = glob($folder . '*.{ini}', GLOB_BRACE);
-        foreach ($iniFiles as $ini) {
-            if($config = parse_ini_file($ini)) {
-                $arrayKeyName = str_replace('.ini', '', substr($ini, strrpos($ini, DS) + 1, strlen($ini) - strrpos($ini, DS)));
-                $this->configurations[$arrayKeyName] = $config;
-            } else {
-                // TODO throw 500 server error because the  config file can not be loaded
-            }
-        }
-    }
-
-    /**
-     * Get the entire configuration array
-     *
-     * @return array
-     */
-    public function getConfigurations() : array {
-        return $this->configurations;
-    }
-
-    /**
-     * Set the configuration by an array
-     *
-     * @param array $configurations - Configurations array
-     */
-    public function setConfigurations(array $configurations) {
-        $this->configurations = $configurations;
     }
 
 }
