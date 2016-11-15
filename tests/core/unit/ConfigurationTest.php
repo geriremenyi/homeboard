@@ -3,14 +3,9 @@
 namespace Resty\Test;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_Error_Warning;
 use Resty\Utility\Configuration;
 use Resty\Exception\HttpException;
 
-/**
- * @group Utility
- * @group Configuration
- */
 class ConfigurationTest extends TestCase  {
 
     public function testSingleton() {
