@@ -3,8 +3,9 @@
 namespace Resty\Test;
 
 use PHPUnit\Framework\TestCase;
+use Resty\Exception\FileNotFoundException;
+use Resty\Exception\InvalidParametersException;
 use Resty\Utility\Configuration;
-use Resty\Exception\HttpException;
 
 class ConfigurationTest extends TestCase  {
 
@@ -18,7 +19,7 @@ class ConfigurationTest extends TestCase  {
     public function testIniReadException() {
         $configurations = Configuration::getInstance();
 
-        self::expectException(HttpException::class);
+        self::expectException(FileNotFoundException::class);
 
         $configurations->loadConfigurations('invalidinifile');
     }
@@ -39,10 +40,10 @@ class ConfigurationTest extends TestCase  {
         $configurations = Configuration::getInstance();
         $configurations->loadConfigurations('test');
 
-        self::expectException(HttpException::class);
+        self::expectException(InvalidParametersException::class);
         $configurations->getConfiguration('invalidtype');
 
-        self::expectException(HttpException::class);
+        self::expectException(InvalidParametersException::class);
         $configurations->getConfiguration('database', 'invalidname');
     }
 
