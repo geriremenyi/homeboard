@@ -2,7 +2,8 @@
 
 namespace Resty\Utility;
 
-use Resty\Exception\HttpException;
+use Resty\Exception\FileNotFoundException;
+use Resty\Exception\InvalidParametersException;
 
 /**
  * Configuration
@@ -50,12 +51,27 @@ class Configuration {
     }
 
     /**
+     * Set configuration variables by the ini files (folder path)
+     *
+     * @param string $environment - Environment to load the configuration for
+     * @throws FileNotFoundException
+     */
+    public function loadConfigurations(string $environment = ENVIRONMENT) {
+        $iniFile = ROOT . DS . 'configuration' . DS . $environment . '.ini';
+
+        // Try to load the ini file
+        if(!($this->configurations = @parse_ini_file($iniFile, true))) {
+            throw new FileNotFoundException('Unable to parse configuration ini file from "' . $iniFile . '"');
+        }
+    }
+
+    /**
      * Get a specific configuration value
      *
      * @param string $type - Configuration variable type
      * @param string $name - The key of the variable
      * @return string
-     * @throws HttpException
+     * @throws InvalidParametersException
      */
     public function getConfiguration(string $type, string $name = null) {
         if(array_key_exists($type, $this->configurations)) {
@@ -67,29 +83,12 @@ class Configuration {
                 // Check if name exists in type array
                 if(array_key_exists($name, $this->configurations[$type])) {
                     return $this->configurations[$type][$name];
+                } else {
+                    throw new InvalidParametersException('"' . $name . '" configuration variable is not a valid name in the "' . $type . '" configuration group!');
                 }
             }
-        }
-
-        // TODO Otherwise 500 Error couldn't find the configuration
-        throw new HttpException();
-
-    }
-
-    /**
-     * Set configuration variables by the ini files (folder path)
-     *
-     * @param string $environment - Environment to load the configuration for
-     * @throws HttpException
-     */
-    public function loadConfigurations(string $environment = ENVIRONMENT) {
-        $iniFile = ROOT . DS . 'configuration' . DS . $environment . '.ini';
-
-        // Try to load the ini file
-        if(!($this->configurations = @parse_ini_file($iniFile, true))) {
-            // TODO throw 500 server error because the  config file can not be parsed
-            throw new HttpException();
+        } else {
+            throw new InvalidParametersException('"' . $type . '" is not a valid configuration group name!');
         }
     }
-
 }
