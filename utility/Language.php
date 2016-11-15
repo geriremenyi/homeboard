@@ -2,7 +2,8 @@
 
 
 namespace Resty\Utility;
-use Resty\Exception\HttpException;
+use Resty\Exception\FileNotFoundException;
+use Resty\Exception\InvalidParametersException;
 
 /**
  * Language class
@@ -27,22 +28,32 @@ class Language {
      *
      * @var string
      */
-    private $languagePath;
+    private static $languagePath;
+
+    /**
+     * Currently loaded translations
+     *
+     * @var array
+     */
+    private static $translations = array();
 
     /**
      * Configuration private constructor.
      * @param string $acceptLanguage - Accept language string given by the request
      * @param string $languagesFolder -  Path to the languages folder
-     * @throws HttpException
+     * @throws FileNotFoundException
+     * @throws InvalidParametersException
      */
-    public function __construct(string $acceptLanguage = null, string $languagesFolder= ROOT . DS . 'languages') {
+    public static function setLanguagePath(string $acceptLanguage = null, string $languagesFolder = ROOT . DS . 'languages') {
+
+        // TODO handle * in Accept-Header
+
         if(!file_exists($languagesFolder)) {
-            // TODO throw 500 invalid languages directory
-            throw new HttpException();
+            throw new FileNotFoundException('Folder "'. $languagesFolder . '" does not exists"');
         } else {
             if($acceptLanguage == null) {
                 // This folder must exists!
-                $this->languagePath = $languagesFolder . DS . Language::$defaultLanguage;
+                self::$languagePath = $languagesFolder . DS . Language::$defaultLanguage;
             } else {
                 $acceptLanguage = str_replace(' ', '', $acceptLanguage);
                 $languages = explode(',', $acceptLanguage);
@@ -77,21 +88,20 @@ class Language {
 
                     if(strpos($lang, '-')) {
                         if(file_exists($languagesFolder . DS . $lang)) {
-                            $this->languagePath = $languagesFolder . DS . $lang;
+                            self::$languagePath = $languagesFolder . DS . $lang;
                             return;
                         }
                     } else {
                         // Language like 'en', 'hu' NOT 'en-us'
                         $folderList = glob($languagesFolder . DS . $lang . '-*');
                         if(!empty($folderList)) {
-                            $this->languagePath = $folderList[0];
+                            self::$languagePath = $folderList[0];
                             return;
                         }
                     }
                 }
 
-                // TODO throw 500 couldn't find the language
-                throw new HttpException();
+                throw new InvalidParametersException('No language can be found which matches with the given Accept-Header');
 
             }
         }
@@ -104,16 +114,33 @@ class Language {
      * @param string $resourceType - Which type of resource contains
      * @param string $key - Array key
      * @return string
-     * @throws HttpException
+     * @throws FileNotFoundException
+     * @throws InvalidParametersException
      */
-    public function translate(string $resourceType, string $key) : string {
-        $translationArray = parse_ini_file($this->languagePath . DS . $resourceType . '.lan');
-        if($translationArray && array_key_exists($key, $translationArray)) {
-            return $translationArray[$key];
-        }
+    public static function translate(string $resourceType, string $key) : string {
+        if(array_key_exists($resourceType, self::$translations)) {
+            // Translation is already loaded
 
-        // TODO throw 500 error couldn't find a translation
-        throw new HttpException();
+            if (array_key_exists($key, self::$translations[$resourceType])) {
+                return self::$translations[$resourceType][$key];
+            } else {
+                throw new InvalidParametersException('"' . $key . '" language can not be found in the "' . $resourceType . '.lan" file');
+            }
+        } else {
+            // Translation is not loaded yet: give it a try
+
+            $translationTemp = parse_ini_file(self::$languagePath . DS . $resourceType . '.lan');
+            if($translationTemp) {
+                self::$translations[$resourceType] = $translationTemp;
+                if(array_key_exists($key, $translationTemp)) {
+                    return $translationTemp[$key];
+                } else {
+                    throw new InvalidParametersException('"' . $key . '" language can not be found in the "' . $resourceType . '.lan" file');
+                }
+            } else {
+                throw new FileNotFoundException('Unable to parse language lan file from "' . self::$languagePath . DS . $resourceType . '.lan"');
+            }
+        }
     }
 
     /**
@@ -125,8 +152,10 @@ class Language {
      * @param array $variables - Variables to put in the string
      * @return string
      */
-    public function translateWithVars(string $resourceType, string $key, array $variables) : string {
+    public static function translateWithVars(string $resourceType, string $key, array $variables) : string {
         $translated = self::translate($resourceType, $key);
+
+        // TODO match the array size and placeholder count
 
         $i = 0;
         foreach ($variables as $var) {
@@ -141,8 +170,8 @@ class Language {
      *
      * @return string
      */
-    public function getLanguagePath() {
-        return $this->languagePath;
+    public static function getLanguagePath() {
+        return self::$languagePath;
     }
 
 }
