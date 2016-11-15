@@ -2,6 +2,7 @@
 
 
 namespace Resty\Utility;
+use Resty\Exception\HttpException;
 
 /**
  * Language class
@@ -19,7 +20,7 @@ class Language {
      *
      * @var string
      */
-    public static $defaultLanguage = 'en-us';
+    public static $defaultLanguage = 'en-gb';
 
     /**
      * Active language folder path
@@ -30,25 +31,28 @@ class Language {
 
     /**
      * Configuration private constructor.
-     * @param string $languagesFolder -  Path to the languages folder
      * @param string $acceptLanguage - Accept language string given by the request
+     * @param string $languagesFolder -  Path to the languages folder
+     * @throws HttpException
      */
-    public function __construct(string $acceptLanguage = null, string $languagesFolder= ROOT . DS . 'framework' . DS . 'languages') {
+    public function __construct(string $acceptLanguage = null, string $languagesFolder= ROOT . DS . 'languages') {
         if(!file_exists($languagesFolder)) {
             // TODO throw 500 invalid languages directory
+            throw new HttpException();
         } else {
             if($acceptLanguage == null) {
                 // This folder must exists!
                 $this->languagePath = $languagesFolder . DS . Language::$defaultLanguage;
             } else {
+                $acceptLanguage = str_replace(' ', '', $acceptLanguage);
                 $languages = explode(',', $acceptLanguage);
+                $languageStrings = array();
+                $weights = array();
 
                 // Find out the requested languages and their weights
                 foreach ($languages as $language) {
                     // Remove spaces
                     str_replace(' ', '', $language);
-                    $languageStrings = array();
-                    $weights = array();
 
                     // Only if it is not empty
                     if($language != '') {
@@ -68,7 +72,7 @@ class Language {
                 }
 
                 // Check if there are any of there matching te existing languages by folder
-                array_multisort($weights, $languageStrings);
+                array_multisort($weights, SORT_DESC, $languageStrings, SORT_DESC);
                 foreach ($languageStrings as $lang) {
 
                     if(strpos($lang, '-')) {
@@ -87,6 +91,7 @@ class Language {
                 }
 
                 // TODO throw 500 couldn't find the language
+                throw new HttpException();
 
             }
         }
@@ -99,6 +104,7 @@ class Language {
      * @param string $resourceType - Which type of resource contains
      * @param string $key - Array key
      * @return string
+     * @throws HttpException
      */
     public function translate(string $resourceType, string $key) : string {
         $translationArray = parse_ini_file($this->languagePath . DS . $resourceType);
@@ -107,6 +113,7 @@ class Language {
         }
 
         // TODO throw 500 error couldn't find a translation
+        throw new HttpException();
     }
 
     /**
@@ -127,6 +134,15 @@ class Language {
         }
 
         return $translated;
+    }
+
+    /**
+     * Get the language file path
+     *
+     * @return string
+     */
+    public function getLanguagePath() {
+        return $this->languagePath;
     }
 
 }
