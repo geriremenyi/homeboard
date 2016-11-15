@@ -37,4 +37,18 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
         self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
     }
 
+    public function testTranslation() {
+        $language = new Language();
+        $translated = $language->translate('resty_test', 'simple');
+
+        self::assertEquals('Hello World!', $translated);
+    }
+
+    public function testTranslationWithParams() {
+        $language = new Language();
+        $translated = $language->translateWithVars('resty_test', 'param', array('Resty'));
+
+        self::assertEquals('Hello Resty!', $translated);
+    }
+
 }

@@ -1,0 +1,2 @@
+simple = "Hello World!"
+param = "Hello {0}!"

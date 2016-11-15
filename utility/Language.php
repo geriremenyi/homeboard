@@ -107,7 +107,7 @@ class Language {
      * @throws HttpException
      */
     public function translate(string $resourceType, string $key) : string {
-        $translationArray = parse_ini_file($this->languagePath . DS . $resourceType);
+        $translationArray = parse_ini_file($this->languagePath . DS . $resourceType . '.lan');
         if($translationArray && array_key_exists($key, $translationArray)) {
             return $translationArray[$key];
         }
@@ -130,7 +130,7 @@ class Language {
 
         $i = 0;
         foreach ($variables as $var) {
-            str_replace('{' . $i . '}', $var, $translated);
+            $translated = str_replace('{' . $i . '}', $var, $translated);
         }
 
         return $translated;
