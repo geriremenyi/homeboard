@@ -3,7 +3,8 @@
 namespace Resty\Test;
 
 use Resty\Utility\Language;
-use Resty\Exception\HttpException;
+use Resty\Exception\FileNotFoundException;
+use Resty\Exception\InvalidParametersException;
 
 class LanguageTest extends \PHPUnit_Framework_TestCase {
 
@@ -12,41 +13,41 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testInvalidLanguageFolder() {
-        self::expectException(HttpException::class);
-        new Language(null, 'fake_directory');
+        self::expectException(FileNotFoundException::class);
+        Language::setLanguagePath(null, 'fake_directory');
     }
 
     public function testDefaultLanguageSet() {
-        $language = new Language();
-        $path = $language->getLanguagePath();
+        Language::setLanguagePath();
+        $path = Language::getLanguagePath();
 
         self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
     }
 
     public function testSimpleLanguageSet() {
-        $language = new Language('hu-hu');
-        $path = $language->getLanguagePath();
+        Language::setLanguagePath('hu-hu');
+        $path = Language::getLanguagePath();
 
         self::assertEquals(ROOT . DS . 'languages' . DS . 'hu-hu', $path);
     }
 
     public function testComplexLanguageSet() {
-        $language = new Language('en;q=0.8, hu-hu;q=0.7');
-        $path = $language->getLanguagePath();
+        Language::setLanguagePath('en;q=0.8, hu-hu;q=0.7');
+        $path = Language::getLanguagePath();
 
         self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
     }
 
     public function testTranslation() {
-        $language = new Language();
-        $translated = $language->translate('resty_test', 'simple');
+        Language::setLanguagePath();
+        $translated = Language::translate('resty_test', 'simple');
 
         self::assertEquals('Hello World!', $translated);
     }
 
     public function testTranslationWithParams() {
-        $language = new Language();
-        $translated = $language->translateWithVars('resty_test', 'param', array('Resty'));
+        Language::setLanguagePath();
+        $translated = Language::translateWithVars('resty_test', 'param', array('Resty'));
 
         self::assertEquals('Hello Resty!', $translated);
     }
