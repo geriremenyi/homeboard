@@ -17,6 +17,11 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
         Language::setLanguagePath(null, 'fake_directory');
     }
 
+    public function testInvalidLanguageSet() {
+        self::expectException(InvalidParametersException::class);
+        Language::setLanguagePath('this_is_not_a_valid_language');
+    }
+
     public function testDefaultLanguageSet() {
         Language::setLanguagePath();
         $path = Language::getLanguagePath();
@@ -43,6 +48,29 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
         $translated = Language::translate('resty_test', 'simple');
 
         self::assertEquals('Hello World!', $translated);
+    }
+
+    public function testInvalidTranslationGroup() {
+        Language::setLanguagePath();
+
+        self::expectException(FileNotFoundException::class);
+        Language::translate('invalid_path_to_lan_file', 'simple');
+    }
+
+    public function testInvalidTranslationVariableName() {
+        Language::setLanguagePath();
+
+        self::expectException(InvalidParametersException::class);
+        Language::translate('resty_test', 'invalid_name');
+    }
+
+    public function testInvalidAlreadyLoadedTranslationVariableName() {
+        Language::setLanguagePath();
+
+        Language::translate('resty_test', 'simple');
+
+        self::expectException(InvalidParametersException::class);
+        Language::translate('resty_test', 'invalid_name');
     }
 
     public function testTranslationWithParams() {

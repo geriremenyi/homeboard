@@ -46,7 +46,9 @@ class Language {
      */
     public static function setLanguagePath(string $acceptLanguage = null, string $languagesFolder = ROOT . DS . 'languages') {
 
-        // TODO handle * in Accept-Header
+        // Empty out static variables
+        self::$languagePath = null;
+        self::$translations = array();
 
         if(!file_exists($languagesFolder)) {
             throw new FileNotFoundException('Folder "'. $languagesFolder . '" does not exists"');
@@ -82,6 +84,7 @@ class Language {
                     }
                 }
 
+                // TODO handle * in Accept-Header
                 // Check if there are any of there matching te existing languages by folder
                 array_multisort($weights, SORT_DESC, $languageStrings, SORT_DESC);
                 foreach ($languageStrings as $lang) {
@@ -101,7 +104,7 @@ class Language {
                     }
                 }
 
-                throw new InvalidParametersException('No language can be found which matches with the given Accept-Header');
+                throw new InvalidParametersException('No language can be found which matches with the "' . $acceptLanguage . '" given Accept-Header');
 
             }
         }
@@ -129,7 +132,7 @@ class Language {
         } else {
             // Translation is not loaded yet: give it a try
 
-            $translationTemp = parse_ini_file(self::$languagePath . DS . $resourceType . '.lan');
+            $translationTemp = @parse_ini_file(self::$languagePath . DS . $resourceType . '.lan');
             if($translationTemp) {
                 self::$translations[$resourceType] = $translationTemp;
                 if(array_key_exists($key, $translationTemp)) {
