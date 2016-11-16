@@ -1,17 +1,8 @@
 <?php
-/**
- * DatabaseCommand.php
- *
- * Description
- *
- * @author      Gergely Reményi <geri@eclectiqminds.com>
- * @copyright   Eclectiq Minds 2015 all rights reserved
- * @package     PeakWeb
- * @subpackage
- * @since       1.0.0
- */
 
-namespace HomeBoard\Framework\Database;
+namespace Resty\Database;
+
+use Resty\Exception\DatabaseException;
 
 /**
  * Database command
@@ -37,10 +28,11 @@ class DatabaseCommand {
      *
      * @param \PDO $pdo - Database connection PDO object
      * @param string $query - Query string
+     * @throws DatabaseException
      */
     public function __construct(\PDO $pdo, string $query) {
         if(!($this->stmt = $pdo->prepare($query))) {
-            // TODO throw 500 exception
+            throw new DatabaseException('Could not prepare statement: ' . $query);
         }
     }
 
@@ -48,6 +40,7 @@ class DatabaseCommand {
      * Execute the prepared query
      *
      * @param array $params - Parameters to bind
+     * @throws DatabaseException
      */
     public function execute(array $params = null) {
 
@@ -58,7 +51,7 @@ class DatabaseCommand {
         }
 
         if(!$success) {
-            // TODO throw 500 exception
+            throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString);
         }
 
     }

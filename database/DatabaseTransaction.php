@@ -1,6 +1,6 @@
 <?php
 
-namespace HomeBoard\Framework\Database;
+namespace Resty\Database;
 
 /**
  * DatabaseTransaction.php

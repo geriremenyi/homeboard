@@ -1,6 +1,8 @@
 <?php
 
-namespace HomeBoard\Framework\Database;
+namespace Resty\Database;
+
+use Resty\Exception\DatabaseException;
 use Resty\Utility\Configuration;
 
 /**
@@ -36,13 +38,14 @@ class Database {
      * Restrict only one instance of the PDO class
      *
      * @return \PDO
+     * @throws DatabaseException
      */
     public static function getConnection() : \PDO {
 
         if(self::$pdo == null) {
 
             // Load database configurations
-            $config = Configuration::getInstance()->getConfiguration('db_config');
+            $config = Configuration::getInstance()->getConfiguration('database');
 
             // Define all the database dependent driver settings here
             $driverOptions = array(
@@ -53,7 +56,7 @@ class Database {
                 self::$pdo = new \PDO($config['driver'] . ':dbname=' . $config['schema'] . ';host=' . $config['host'], $config['username'], $config['password'], $driverOptions);
                 self::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
-                // TODO throw 500 server error because the connection can not be established
+                throw new DatabaseException('Could not connect to the database with the configuration values given!');
             }
         }
 
