@@ -94,17 +94,20 @@ class Language {
                             self::$languagePath = $languagesFolder . DS . $lang;
                             return;
                         }
-                    } else {
+                    } else if($lang != '*') {
                         // Language like 'en', 'hu' NOT 'en-us'
                         $folderList = glob($languagesFolder . DS . $lang . '-*');
                         if(!empty($folderList)) {
                             self::$languagePath = $folderList[0];
                             return;
                         }
+                    } else {
+                        self::$languagePath = $languagesFolder . DS . self::$defaultLanguage;
                     }
                 }
 
-                throw new InvalidParametersException('No language can be found which matches with the "' . $acceptLanguage . '" given Accept-Header');
+                // If language couldn't find set the default one
+                self::$languagePath = $languagesFolder . DS . Language::$defaultLanguage;
 
             }
         }

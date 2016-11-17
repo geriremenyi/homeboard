@@ -18,8 +18,10 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testInvalidLanguageSet() {
-        self::expectException(InvalidParametersException::class);
         Language::setLanguagePath('this_is_not_a_valid_language');
+        $path = Language::getLanguagePath();
+
+        self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
     }
 
     public function testDefaultLanguageSet() {
@@ -38,6 +40,13 @@ class LanguageTest extends \PHPUnit_Framework_TestCase {
 
     public function testComplexLanguageSet() {
         Language::setLanguagePath('en;q=0.8, hu-hu;q=0.7');
+        $path = Language::getLanguagePath();
+
+        self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
+    }
+
+    public function testComplexLanguageSetWithStar() {
+        Language::setLanguagePath('fake;q=0.8, *');
         $path = Language::getLanguagePath();
 
         self::assertEquals(ROOT . DS . 'languages' . DS . 'en-gb', $path);
