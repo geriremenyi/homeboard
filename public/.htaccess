@@ -1,0 +1,16 @@
+#######################
+# Start rewrite engine #
+########################
+
+RewriteEngine On
+
+#####################################
+# Disable directory content listing #
+#####################################
+
+Options -Indexes
+
+###############################
+# All requests into index.php #
+###############################
+RewriteRule ^(.*) index.php [QSA,L]

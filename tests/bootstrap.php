@@ -5,9 +5,6 @@ date_default_timezone_set('Europe/Budapest');
 // Prevent session cookies
 ini_set('session.use_cookies', 0);
 
-// Prevent to report warnings
-error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
-
 // Include settings
 require_once('../resty-settings.php');
 
