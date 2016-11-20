@@ -12,4 +12,4 @@ namespace Resty\Exception;
  * @subpackage Exception
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
-class RestyBaseException extends \Exception  {}
+class RestyException extends \Exception  {}

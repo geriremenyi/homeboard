@@ -11,4 +11,4 @@ namespace Resty\Exception;
  * @subpackage Exception
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
-class DatabaseException extends RestyBaseException {}
+class DatabaseException extends RestyException {}

@@ -11,4 +11,4 @@ namespace Resty\Exception;
  * @subpackage Exception
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
-class FileNotFoundException extends RestyBaseException {}
+class FileNotFoundException extends RestyException {}

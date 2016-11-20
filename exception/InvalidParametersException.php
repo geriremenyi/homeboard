@@ -12,4 +12,4 @@ namespace Resty\Exception;
  * @subpackage Exception
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
-class InvalidParametersException extends RestyBaseException {}
+class InvalidParametersException extends RestyException {}
