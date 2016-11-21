@@ -31,9 +31,14 @@ class DatabaseCommand {
      * @throws DatabaseException
      */
     public function __construct(\PDO $pdo, string $query) {
-        if(!($this->stmt = $pdo->prepare($query))) {
-            throw new DatabaseException('Could not prepare statement: ' . $query);
+        try {
+            if(!($this->stmt = $pdo->prepare($query))) {
+                throw new DatabaseException('Could not prepare statement: ' . $query);
+            }
+        } catch (\PDOException $e) {
+            throw new DatabaseException('Could not prepare statement: ' . $query . PHP_EOL . 'Error message: ' . $e->getMessage());
         }
+
     }
 
     /**
@@ -44,16 +49,19 @@ class DatabaseCommand {
      */
     public function execute(array $params = null) {
 
-        if($params == null) {
-            $success = $this->stmt->execute();
-        } else {
-            $success = $this->stmt->execute($params);
-        }
+        try {
+            if($params == null) {
+                $success = $this->stmt->execute();
+            } else {
+                $success = $this->stmt->execute($params);
+            }
 
-        if(!$success) {
-            throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString);
+            if(!$success) {
+                throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString);
+            }
+        } catch (\PDOException $e) {
+            throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage());
         }
-
     }
 
     /**

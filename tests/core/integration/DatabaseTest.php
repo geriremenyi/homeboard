@@ -9,19 +9,26 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
         Configuration::getInstance()->loadConfigurations();
+
+        $dropCommand = new DatabaseCommand(Database::getConnection(), 'DROP TABLE IF EXISTS resty_test');
+        $dropCommand->execute();
+
+        $createCommand = new DatabaseCommand(Database::getConnection(),
+            'CREATE TABLE `resty_test` (
+              `key_field` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+              `value_field` varchar(50) COLLATE utf8_unicode_ci NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;');
+        $createCommand->execute();
     }
 
-    public function testConnection() {
+    public function testOnlyOneConnection() {
         $conn1 = Database::getConnection();
         $conn2 = Database::getConnection();
 
         self::assertEquals($conn1,$conn2);
     }
 
-    public function testTruncateTestTable() {
-        $truncateCommand = new DatabaseCommand(Database::getConnection(), 'TRUNCATE TABLE resty_test');
-        $truncateCommand->execute();
-
+    public function testEmptyTable() {
         $selectCommand = new DatabaseCommand(Database::getConnection(), 'SELECT * FROM resty_test');
         $selectCommand->execute();
         self::assertEquals(0, $selectCommand->rowCount());
@@ -110,6 +117,11 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase {
 
         // Insert should be there because the transaction has been committed
         self::assertEquals(1, $selectCommand->rowCount());
+    }
+
+    public static function tearDownAfterClass() {
+        $dropCommand = new DatabaseCommand(Database::getConnection(), 'DROP TABLE IF EXISTS resty_test');
+        $dropCommand->execute();
     }
 
 }
