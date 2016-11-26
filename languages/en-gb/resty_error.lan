@@ -1,1 +1,5 @@
-internal_server_error = "Internal Server Error"
+internal_server_error = "Whoops! Something went wrong in the server."
+empty_auth_header = "Empty credentials!"
+invalid_client = "Invalid client credentials!"
+invalid_token = "Invalid user token!"
+invalid_api_version = "This API version ({0}) does not exists!"

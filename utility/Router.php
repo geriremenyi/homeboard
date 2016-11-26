@@ -2,7 +2,6 @@
 
 namespace Resty\Utility;
 
-use Resty\Exception\RestyException;
 use Zend\Diactoros\{
     Response, ServerRequest, Uri
 };
@@ -43,11 +42,28 @@ class Router {
         $this->response = $response;
     }
 
+    /**
+     * @param Uri $uri
+     */
     public function route(Uri $uri) {
-        $array = array(
-            'uri' => $uri->getPath()
-        );
-        $this->response->getBody()->write(json_encode($array));
+
+        // URI pattern: <api_version>/<resource_type>/<resource_id>/<resource_type>/<resource_id>...
+        // Also removes the /api/ prepend if given
+        $uriArray = explode('/', trim($uri->getPath(), '/api/'));
+
+        // Check API version correctness
+        $apiVersion = array_shift($uriArray);
+        if(!file_exists(ROOT . DS . 'app' . DS . $apiVersion)) {
+            $error = array();
+            $error['code'] = 404;
+            $error['message'] = Language::translateWithVars('resty_error', 'invalid_api_version', [$apiVersion]);
+            $error['errors'] = array();
+
+            $this->response->getBody()->write(json_encode($error));
+            $this->response = $this->response->withStatus(404);
+        } else {
+
+        }
     }
 
 }

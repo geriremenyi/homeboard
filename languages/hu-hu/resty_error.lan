@@ -1,1 +1,5 @@
-internal_server_error = "Szerverhiba"
+internal_server_error = "Huppsz! Valami elromlott a szerveren!"
+empty_auth_header = "Üres hitelesítési adatok!"
+invalid_client = "Érvénytelen kliens hitelesítési adatok!"
+invalid_token = "Érvénytelen felhasználó token!"
+invalid_api_version = "A '{0}' verziójú API nem létezik!"

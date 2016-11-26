@@ -2,9 +2,14 @@
 
 namespace Resty\Utility;
 
-use Resty\Exception\RestyException;
+use Resty\Auth\ {
+    Client, ApiUser
+};
+use Resty\Exception\ {
+    AuthException, RestyException
+};
 use Zend\Diactoros\{
-    ServerRequestFactory, Response, Uri
+    ServerRequest, ServerRequestFactory, Response
 };
 
 /**
@@ -21,7 +26,7 @@ class Application {
     /**
      * Request object from client
      *
-     * @var
+     * @var ServerRequest
      */
     private $request;
 
@@ -32,12 +37,25 @@ class Application {
      */
     private $response;
 
+    /**
+     * Request is coming from this client
+     *
+     * @var Client
+     */
+    public static $client;
+
+    /**
+     * The user sent the request
+     *
+     * @var ApiUser
+     */
+    public static $user;
+
     public function __construct() {
         // Init HTTP message objects
         $this->request = ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-
         $this->response = new Response();
-        $this->response = $this->response->withHeader('Content-Type', 'application/json');
+        $this->response = $this->response->withHeader('Content-Type', 'json');
     }
 
     /**
@@ -49,27 +67,32 @@ class Application {
             Configuration::getInstance()->loadConfigurations();
             Language::setLanguagePath($this->request->getHeaderLine('Accept-Language'));
 
-            // Start routing
-            $router = new Router($this->request, $this->response);
-            $router->route($this->request->getUri());
+            // Authenticate request
+            if($this->checkAuthorization($this->request->getHeaderLine('Authorization'))) {
+                // Start routing
+                $router = new Router($this->request, $this->response);
+                $router->route($this->request->getUri());
+            }
         } catch (RestyException $e) {
-            //TODO log the exception
 
             $error = array();
             $error['code'] = 500;
             $error['message'] = Language::translate('resty_error', 'internal_server_error');
 
-            // If development environment then add development error description
+            // Helper for framework development
             if(ENVIRONMENT == 'dev') {
-                $error['developer_message'] = $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+                $error['dev'] = array(
+                    'message' => $e->getMessage(),
+                    'stack' => $e->getTraceAsString()
+                );
             }
-            // Empty errors list
+
             $error['errors'] = array();
 
             $this->response->getBody()->write(json_encode($error));
             $this->response = $this->response->withStatus(500);
         } finally {
-            // Compress the output with gzip if needed
+            // Compress the output in gzip if needed
             ob_start('ob_gzhandler');
             if(!strpos($this->request->getHeaderLine('Accept-Encoding'), 'gzip')) {
                 $this->response = $this->response->withHeader('Content-Encoding', 'gzip');
@@ -88,4 +111,43 @@ class Application {
         }
     }
 
+    /**
+     * Check if the authorization token is okay
+     *
+     * @param string $authHeader
+     * @return bool
+     */
+    public function checkAuthorization(string $authHeader) : bool {
+
+        // No authorization header given -> unauthorized
+        if($authHeader == '') {
+            $error = array();
+            $error['code'] = 401;
+            $error['message'] = Language::translate('resty_error', 'empty_auth_header');
+            $error['errors'] = array();
+
+            $this->response->getBody()->write(json_encode($error));
+            $this->response = $this->response->withStatus(401);
+            return false;
+        }
+
+        // Client authorization
+        if(strpos($authHeader, 'Basic') == 0) {
+            try {
+                Application::$client = new Client(Configuration::getInstance(), str_replace('Basic ', '', $authHeader));
+                return true;
+            } catch (AuthException $e) {
+                $error = array();
+                $error['code'] = 401;
+                $error['message'] = Language::translate('resty_error', 'invalid_client');
+                $error['errors'] = array();
+
+                $this->response->getBody()->write(json_encode($error));
+                $this->response = $this->response->withStatus(401);
+                return false;
+            }
+        }
+
+        return false;
+    }
 }
