@@ -3,14 +3,15 @@
 namespace Resty\Exception;
 
 /**
- * AuthException
+ * ServerException
  *
- * Exception class for authentication/authorization errors
+ * Base exception class for all the server errors (HTTP 500)
+ * in the resty framework
  *
  * @package    Resty
  * @subpackage Exception
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
-class AuthException extends HttpException  {
+class ServerException extends RestyException {
 
 }

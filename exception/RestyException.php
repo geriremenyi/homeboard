@@ -3,7 +3,7 @@
 namespace Resty\Exception;
 
 /**
- * RestyBaseException
+ * RestyException
  *
  * Base exception class for all the exceptions
  * generated in resty framework

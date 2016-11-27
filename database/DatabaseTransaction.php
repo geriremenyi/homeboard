@@ -8,8 +8,8 @@ namespace Resty\Database;
  * Database transaction for commits, rollbacks
  * and define transaction start and ends
  *
- * @package    HomeBoard
- * @subpackage Framework\Database
+ * @package    Resty
+ * @subpackage Database
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
 class DatabaseTransaction {

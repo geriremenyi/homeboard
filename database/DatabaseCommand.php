@@ -3,6 +3,7 @@
 namespace Resty\Database;
 
 use Resty\Exception\DatabaseException;
+use Resty\Model\Model;
 
 /**
  * Database command
@@ -10,8 +11,8 @@ use Resty\Exception\DatabaseException;
  * Database command wrapper class for SQL
  * commands using the singleton PDO connection
  *
- * @package    HomeBoard
- * @subpackage Framework\Database
+ * @package    Resty
+ * @subpackage Database
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
 class DatabaseCommand {

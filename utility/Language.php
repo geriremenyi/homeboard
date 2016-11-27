@@ -166,6 +166,7 @@ class Language {
         $i = 0;
         foreach ($variables as $var) {
             $translated = str_replace('{' . $i . '}', $var, $translated);
+            $i++;
         }
 
         return $translated;

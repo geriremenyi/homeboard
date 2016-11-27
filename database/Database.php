@@ -10,8 +10,8 @@ use Resty\Utility\Configuration;
  *
  * Database wrapper for protecting from multiple pdo instances.
  *
- * @package    HomeBoard
- * @subpackage Resty\Database
+ * @package    Resty
+ * @subpackage Database
  * @author     Gergely Reményi <gergo@remenyicsalad.hu>
  */
 class Database {
