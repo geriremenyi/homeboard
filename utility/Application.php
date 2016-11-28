@@ -2,6 +2,7 @@
 
 namespace Resty\Utility;
 
+use Resty\Auth\ApiUser;
 use Resty\Auth\Client;
 use Resty\Exception\{
     AuthException, HttpException, RestyException, ServerException
@@ -49,6 +50,18 @@ class Application {
      */
     public static $client;
 
+    /**
+     * Current user in the APi
+     *
+     * @var ApiUser
+     */
+    public static $user;
+
+    /**
+     * Application constructor.
+     *
+     * @param $autoloader - Composer autoloader
+     */
     public function __construct($autoloader) {
         // Init HTTP message objects
         $this->request = ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -67,11 +80,12 @@ class Application {
             Language::setLanguagePath($this->request->getHeaderLine('Accept-Language'));
 
             // Authenticate request
-            if($this->checkClientAuthorization($this->request->getHeaderLine('Authorization'))) {
-                // Start routing
-                $router = new Router($this->request, $this->response, $this->autoloader);
-                $router->route($this->request->getUri());
-            }
+            $this->checkAuthorization($this->request->getHeaderLine('Authorization'));
+
+            // Start routing
+            $router = new Router($this->request, $this->response, $this->autoloader);
+            $router->route($this->request->getUri());
+
         } catch (HttpException $e) {
             // Http exception which is something to show to the user
             $this->response->getBody()->write($e->getMessage());
@@ -137,10 +151,11 @@ class Application {
     /**
      * Check if the authorization token is okay
      *
-     * @param string $authHeader - Azthorization header of the request
+     * @param string $authHeader - Authorization header of the request
      * @return bool
+     * @throws HttpException
      */
-    public function checkClientAuthorization(string $authHeader) : bool {
+    public function checkAuthorization(string $authHeader) {
 
         // No authorization header given -> unauthorized
         if($authHeader == '') {
@@ -149,29 +164,34 @@ class Application {
             $error['message'] = Language::translate('resty_error', 'empty_auth_header');
             $error['errors'] = array();
 
-            $this->response->getBody()->write(json_encode($error));
-            $this->response = $this->response->withStatus(401);
-            return false;
+            throw new HttpException(json_encode($error), 401);
         }
 
         // Client authorization
         if(strpos($authHeader, 'Basic') == 0) {
-            try {
-                Application::$client = new Client(Configuration::getInstance(), str_replace('Basic ', '', $authHeader));
-                return true;
-            } catch (AuthException $e) {
-                $error = array();
-                $error['code'] = 401;
-                $error['message'] = Language::translate('resty_error', 'invalid_client');
-                $error['errors'] = array();
+            // Validate client
+            $newClient = new Client(Configuration::getInstance());
+            $newClient->validate(str_replace('Basic ', '', $authHeader));
+            Application::$client = $newClient;
 
-                $this->response->getBody()->write(json_encode($error));
-                $this->response = $this->response->withStatus(401);
-                return false;
-            }
+            // Empty api user
+            Application::$user = new ApiUser(Configuration::getInstance());
         }
+        // User authentication
+        elseif(strpos($authHeader, 'Bearer') == 0) {
+            $user = new ApiUser(Configuration::getInstance());
+            $user->validate(str_replace('Bearer ', '', $authHeader));
+            Application::$user = $user;
 
-        // Otherwise the client is ok
-        return true;
+            // Client id and secret by the JWT token
+            $client = new Client(Configuration::getInstance());
+        } else {
+            $error = array();
+            $error['code'] = 401;
+            $error['message'] = Language::translate('resty_error', 'unsupported_auth_header');
+            $error['errors'] = array();
+
+            throw new AuthException(json_encode($error), 401);
+        }
     }
 }
