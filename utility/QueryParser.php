@@ -1,7 +1,9 @@
 <?php
 
 namespace Resty\Utility;
+use Resty\Exception\AuthException;
 use Resty\Exception\InvalidParametersException;
+use Resty\Exception\QueryException;
 
 /**
  * Parameter parser
@@ -64,19 +66,19 @@ class QueryParser {
 
             // Check if there is something in the condition already
             if($this->conditionString == '') {
-                $this->conditionString .= ' AND (';
-            } else {
                 $this->conditionString .= ' (';
+            } else {
+                $this->conditionString .= ' AND (';
             }
 
             // First search
-            $this->conditionString = array_shift($searchableFields) . ' LIKE %"?"%';
+            $this->conditionString .= array_shift($searchableFields) . ' LIKE %"?"%';
             array_push($this->conditionParams, $searchKey);
 
             // Others
             foreach ($searchableFields as $field) {
-                $this->conditionString .= ' OR' . $field . ' LIKE %"?"%';
-                array_push($conditionParameters, $key);
+                $this->conditionString .= ' OR ' . $field . ' LIKE %"?"%';
+                array_push($this->conditionParams, $searchKey);
             }
             $this->conditionString .= ')';
         }
@@ -87,50 +89,65 @@ class QueryParser {
      *
      * @param array $availableFields - Available fields in the model
      * @param string $filters - Filters string
-     * @throws InvalidParametersException
+     * @throws QueryException
      */
     public function parseFilter(array $availableFields, string $filters) {
         if($filters != null) {
 
             // Check if there is something in the condition already
             if($this->conditionString == '') {
-                $this->conditionString .= ' AND (';
-            } else {
                 $this->conditionString .= ' (';
+            } else {
+                $this->conditionString .= ' AND (';
             }
 
             $filtersArray = explode(',', $filters);
             foreach ($filtersArray as $key => $filter) {
 
                 // Check the equation
-                if(strpos($filter, '=')) {
-                    $filterDetails = explode('=', $filter);
-                    $equation = '=';
+                if( strpos($filter, '<=')) {
+                    $filterDetails = explode('<=', $filter);
+                    $equation = '<=';
+                } elseif( strpos($filter, '>=')) {
+                    $filterDetails = explode('>=', $filter);
+                    $equation = '>=';
                 } elseif(strpos($filter, '<>')) {
                     $filterDetails = explode('<>', $filter);
                     $equation = '<>';
                 } elseif( strpos($filter, '>')) {
                     $filterDetails = explode('>', $filter);
                     $equation = '>';
-                } elseif( strpos($filter, '>=')) {
-                    $filterDetails = explode('>=', $filter);
-                    $equation = '>=';
-                } elseif( strpos($filter, '<')) {
+                }  elseif( strpos($filter, '<')) {
                     $filterDetails = explode('<', $filter);
                     $equation = '<';
-                } elseif( strpos($filter, '<=')) {
-                    $filterDetails = explode('<=', $filter);
-                    $equation = '<=';
+                } elseif(strpos($filter, '=')) {
+                    $filterDetails = explode('=', $filter);
+                    $equation = '=';
                 } else {
-                    throw new InvalidParametersException('The given filter "' . $filter . '" was invalid');
+                    $error = array();
+                    $error['code'] = 400;
+                    $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_filter', [$filter]);
+                    $error['errors'] = array();
+
+                    throw new QueryException(json_encode($error), 400);
                 }
 
                 // Check if it contains more then on equation in one statement
                 if(count($filterDetails) > 2) {
-                    throw new InvalidParametersException('The given filter "' . $filter . '" was invalid');
+                    $error = array();
+                    $error['code'] = 400;
+                    $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_filter', [$filter]);
+                    $error['errors'] = array();
+
+                    throw new QueryException(json_encode($error), 400);
                 } elseif(!in_array($filterDetails[0], $availableFields)) {
                     // Check if the filter filed is correct
-                    throw new InvalidParametersException('There is no such field "' . $filterDetails[0] . '" in the resource!');
+                    $error = array();
+                    $error['code'] = 400;
+                    $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_field', [$filter]);
+                    $error['errors'] = array();
+
+                    throw new QueryException(json_encode($error), 400);
                 }
 
                 // Is it the first filter
@@ -138,7 +155,7 @@ class QueryParser {
                     $this->conditionString .= $filterDetails[0] . $equation . '"?"';
                     array_push($this->conditionParams, $filterDetails[1]);
                 } else {
-                    $this->conditionString .= ' AND' . $filterDetails[0] . $equation . '"?"';
+                    $this->conditionString .= ' AND ' . $filterDetails[0] . $equation . '"?"';
                     array_push($this->conditionParams, $filterDetails[1]);
                 }
 
@@ -152,7 +169,7 @@ class QueryParser {
      *
      * @param array $availableFields - Available fields in the model
      * @param string $projections - Projections string
-     * @throws InvalidParametersException
+     * @throws QueryException
      */
     public function parseProjection(array $availableFields, string $projections) {
         if($projections != null) {
@@ -163,13 +180,23 @@ class QueryParser {
             if(in_array($projection, $availableFields)) {
                 $this->fieldList .= ' ' . $projection;
             } else {
-                throw new InvalidParametersException('The field "' . $projection . '" is not available in this resource');
+                $error = array();
+                $error['code'] = 400;
+                $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_field', [$projection]);
+                $error['errors'] = array();
+
+                throw new QueryException(json_encode($error), 400);
             }
             foreach ($projectionArray as $projection) {
                 if(in_array($projection, $availableFields)) {
                     $this->fieldList .= ', ' . $projection;
                 } else {
-                    throw new InvalidParametersException('The field "' . $projection . '" is not available in this resource');
+                    $error = array();
+                    $error['code'] = 400;
+                    $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_field', [$projection]);
+                    $error['errors'] = array();
+
+                    throw new QueryException(json_encode($error), 400);
                 }
             }
 
@@ -181,7 +208,7 @@ class QueryParser {
      *
      * @param array $availableFields - Available fields in the model
      * @param string $sorting - Sorting string
-     * @throws InvalidParametersException
+     * @throws QueryException
      */
     public function parseSorting(array $availableFields, string $sorting) {
         if($sorting != null) {
@@ -207,7 +234,12 @@ class QueryParser {
                         $this->sorting .= ', ' . $sort . ' ' . $direction;
                     }
                 } else {
-                    throw new InvalidParametersException('The field "' . $sort . '" is not available in this resource');
+                    $error = array();
+                    $error['code'] = 400;
+                    $error['message'] = Language::translateWithVars('resty_error', 'invalid_query_field', [$sort]);
+                    $error['errors'] = array();
+
+                    throw new QueryException(json_encode($error), 400);
                 }
             }
 

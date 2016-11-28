@@ -152,7 +152,7 @@ class Router {
         // TODO handle invalid inputs
 
         foreach($queries as $query) {
-            if(strpos($query, 'filter=') != false) {
+            if(strpos($query, 'filter') !== false) {
                 $value = trim($query, 'filter=()');
                 $queryArray['filter'] = $value;
             } else {

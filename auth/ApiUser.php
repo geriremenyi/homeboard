@@ -3,13 +3,14 @@
 namespace Resty\Auth;
 
 use Emarref\Jwt\Algorithm\Hs256;
-use Emarref\Jwt\Claim\Expiration;
-use Emarref\Jwt\Claim\IssuedAt;
-use Emarref\Jwt\Claim\PrivateClaim;
+use Emarref\Jwt\Claim\ {
+    Expiration, IssuedAt, PrivateClaim
+};
 use Emarref\Jwt\Encryption\Factory;
-use Emarref\Jwt\Exception\VerificationException;
-use Emarref\Jwt\Jwt;
-use Emarref\Jwt\Token;
+use Emarref\Jwt\Exception\ExpiredException;
+use Emarref\Jwt\ {
+    Jwt, Token
+};
 use Emarref\Jwt\Verification\Context;
 use Resty\Exception\AuthException;
 use Resty\Utility\ {
@@ -39,7 +40,6 @@ class ApiUser {
      */
     public function __construct(Configuration $config) {
         $this->config = $config;
-        $this->token = null;
     }
 
     /**
@@ -88,7 +88,14 @@ class ApiUser {
             // Verify
             $jwt->verify($this->token, $context);
 
-        } catch (VerificationException $e) {
+        } catch (ExpiredException $e) {
+            $error = array();
+            $error['code'] = 403;
+            $error['message'] = Language::translate('resty_error', 'token_expired');
+            $error['errors'] = array();
+
+            throw new AuthException(json_encode($error), 403);
+        } catch (\Throwable $e) {
             $error = array();
             $error['code'] = 401;
             $error['message'] = Language::translate('resty_error', 'invalid_token');

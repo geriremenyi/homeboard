@@ -134,7 +134,6 @@ class Language {
             }
         } else {
             // Translation is not loaded yet: give it a try
-
             $translationTemp = @parse_ini_file(self::$languagePath . DS . $resourceType . '.lan');
             if($translationTemp) {
                 self::$translations[$resourceType] = $translationTemp;
