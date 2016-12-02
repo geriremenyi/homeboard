@@ -19,15 +19,15 @@ use Zend\Diactoros\ {
  */
 abstract class Controller {
 
-    private $request;
+    protected $request;
 
-    private $response;
+    protected $response;
 
-    private $query;
+    protected $query;
 
-    private $chain;
+    protected $chain;
 
-    public function __construct(ServerRequest $request, Response $response, array $query = null, array $chain = null) {
+    public function __construct(ServerRequest $request, Response $response, $query = null, $chain = null) {
         $this->request = $request;
         $this->response = $response;
         $this->query = $query;

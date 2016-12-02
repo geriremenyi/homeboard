@@ -48,7 +48,7 @@ class ApiUser {
      * @param array $claims - Claims array of key value pairs passed by the user
      * @return string
      */
-    public function generateToken(array $claims) : string{
+    public function generateToken(array $claims) : string {
         $token = new Token();
 
         // Issued at and expiration

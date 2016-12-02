@@ -74,7 +74,7 @@ class Router {
 
         if(count($controllerChain) == 0) {
             // API root
-            $this->response->getBody()->write(json_encode(['Hello' => 'World!']));
+            $this->response->getBody()->write(json_encode(['Hello' => Language::translate('resty_base', 'world')]));
         } else {
             // Get last controller to call
             $controllerToCall = array_pop($controllerChain);
