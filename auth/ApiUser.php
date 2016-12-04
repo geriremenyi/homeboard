@@ -17,6 +17,16 @@ use Resty\Utility\ {
     Configuration, Language
 };
 
+/**
+ * Api User
+ *
+ * This class is responsible for the
+ * token generation and validation
+ *
+ * @package    App
+ * @subpackage v1\Model
+ * @author     Gergely Reményi <gergo@remenyicsalad.hu>
+ */
 class ApiUser {
 
     /**

@@ -19,6 +19,12 @@ use Resty\Utility\Language;
  */
 class FlatsController extends Controller {
 
+    /**
+     * Create flat
+     *
+     * @param $id - Given id, never used
+     * @throws AppException
+     */
     public function post($id) {
         // No id can be specified in this request
         if($id != null) {
@@ -119,6 +125,12 @@ class FlatsController extends Controller {
         $this->response->getBody()->write($flat);
     }
 
+    /**
+     * Get one or more flats
+     *
+     * @param $id - Id of the desired flat
+     * @throws AppException
+     */
     public function get($id) {
         // No chain call
         if ($this->chain != null) {
@@ -197,6 +209,12 @@ class FlatsController extends Controller {
 
     }
 
+    /**
+     * Update a flat
+     *
+     * @param $id - Given id, never used
+     * @throws AppException
+     */
     public function patch($id) {
         // No id can be specified in this request
         if($id == null) {
@@ -314,6 +332,12 @@ class FlatsController extends Controller {
         $this->response->getBody()->write($model);
     }
 
+    /**
+     * Delete a flat
+     *
+     * @param $id - Delete this flat by id
+     * @throws AppException
+     */
     public function delete($id) {
         if($id == null) {
             $error = [];

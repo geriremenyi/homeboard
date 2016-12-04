@@ -2,7 +2,6 @@
 
 namespace Resty\Controller;
 
-use Resty\Exception\ServerException;
 use Resty\Utility\Application;
 use Zend\Diactoros\ {
     ServerRequest, Response
@@ -20,22 +19,46 @@ use Zend\Diactoros\ {
  */
 abstract class Controller {
 
+    /**
+     * Request from the client
+     *
+     * @var ServerRequest
+     */
     protected $request;
 
+    /**
+     * Response to the client
+     *
+     * @var Response
+     */
     protected $response;
 
+    /**
+     * Query string from the url
+     *
+     * @var null|string
+     */
     protected $query;
 
+    /**
+     * Controller chain
+     *
+     * @var null|array
+     */
     protected $chain;
 
+    /**
+     * Controller constructor.
+     *
+     * @param ServerRequest $request - Request from the client
+     * @param Response $response - Response to the client
+     * @param null|string $query - Query string from the url
+     * @param null|array $chain - Controller chain
+     */
     public function __construct(ServerRequest $request, Response $response, $query = null, $chain = null) {
         $this->request = $request;
         $this->response = $response;
         $this->query = $query;
         $this->chain = $chain;
-    }
-
-    public function checkAuthentication() : bool {
-        return Application::$user == null ? false : true;
     }
 }

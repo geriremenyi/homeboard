@@ -23,6 +23,13 @@ use Resty\Utility\Language;
  */
 class UsersController extends Controller {
 
+    /**
+     * Create user
+     *
+     * @param $id - Given id, never used
+     * @throws AppException
+     * @throws DatabaseException
+     */
     public function post($id) {
         // No id can be specified in this request
         if($id != null) {
@@ -181,6 +188,12 @@ class UsersController extends Controller {
         }
     }
 
+    /**
+     * Get users/user
+     *
+     * @param $id - Id of the desired user
+     * @throws AppException
+     */
     public function get($id) {
         // No chain call
         if ($this->chain != null) {
@@ -294,6 +307,13 @@ class UsersController extends Controller {
         }
     }
 
+    /**
+     * Update user
+     *
+     * @param $id - Update this user by id
+     * @throws AppException
+     * @throws DatabaseException
+     */
     public function patch($id) {
         // No id can be specified in this request
         if($id == null) {
@@ -496,6 +516,12 @@ class UsersController extends Controller {
         }
     }
 
+    /**
+     * Delete user
+     *
+     * @param $id - Delete this user by id
+     * @throws AppException
+     */
     public function delete($id) {
         if($id == null) {
             $error = [];

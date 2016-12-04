@@ -25,7 +25,7 @@ class MessagesController extends Controller {
     /**
      * Create a message
      *
-     * @param $id - id of the resource
+     * @param $id - Given id, never used
      * @throws AppException
      */
     public function post($id) {
@@ -188,7 +188,7 @@ class MessagesController extends Controller {
     /**
      * Get messages/message
      *
-     * @param $id
+     * @param $id - Id of the desired message
      * @throws AppException
      */
     public function get($id) {

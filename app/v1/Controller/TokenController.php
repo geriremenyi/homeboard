@@ -28,6 +28,12 @@ class TokenController extends Controller {
         parent::__construct($request, $response, $query, $chain);
     }
 
+    /**
+     * Create token
+     *
+     * @param $id - Given id, never used
+     * @throws AppException
+     */
     public function post($id) {
         // No id can be specified in this request
         if($id != null) {

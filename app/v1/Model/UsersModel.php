@@ -143,6 +143,11 @@ class UsersModel extends Model {
         return $this->livesFlatId;
     }
 
+    /**
+     * Serialize class
+     *
+     * @return string
+     */
     public function __toString() {
         $fields = [];
 
