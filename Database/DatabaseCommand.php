@@ -61,7 +61,7 @@ class DatabaseCommand {
                 throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString);
             }
         } catch (\PDOException $e) {
-            if(is_integer($e->getCode())) {
+            if(intval($e->getCode()) !== 0) {
                 throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage(), $e->getCode());
             } else {
                 throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage());
