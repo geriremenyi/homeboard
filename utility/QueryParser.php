@@ -59,9 +59,9 @@ class QueryParser {
      * Parse search key and expand the sql condition with it
      *
      * @param array $searchableFields - Searchable fields in the model
-     * @param string $searchKey - Incoming search key from the request
+     * @param string|null $searchKey - Incoming search key from the request
      */
-    public function parseSearch(array $searchableFields, string $searchKey) {
+    public function parseSearch(array $searchableFields, $searchKey) {
         if ($searchKey != null) {
 
             // Check if there is something in the condition already
@@ -72,13 +72,13 @@ class QueryParser {
             }
 
             // First search
-            $this->conditionString .= array_shift($searchableFields) . ' LIKE %"?"%';
-            array_push($this->conditionParams, $searchKey);
+            $this->conditionString .= array_shift($searchableFields) . ' LIKE ?';
+            array_push($this->conditionParams, '%' . $searchKey . '%');
 
             // Others
             foreach ($searchableFields as $field) {
-                $this->conditionString .= ' OR ' . $field . ' LIKE %"?"%';
-                array_push($this->conditionParams, $searchKey);
+                $this->conditionString .= ' OR ' . $field . ' LIKE ?';
+                array_push($this->conditionParams, '%' . $searchKey . '%');
             }
             $this->conditionString .= ')';
         }
@@ -88,10 +88,10 @@ class QueryParser {
      * Parse filters and expand the sql condition with it
      *
      * @param array $availableFields - Available fields in the model
-     * @param string $filters - Filters string
+     * @param string $filters|null - Filters string
      * @throws QueryException
      */
-    public function parseFilter(array $availableFields, string $filters) {
+    public function parseFilter(array $availableFields, $filters) {
         if($filters != null) {
 
             // Check if there is something in the condition already
@@ -152,10 +152,10 @@ class QueryParser {
 
                 // Is it the first filter
                 if($key == 0) {
-                    $this->conditionString .= $filterDetails[0] . $equation . '"?"';
+                    $this->conditionString .= $filterDetails[0] . $equation . '?';
                     array_push($this->conditionParams, $filterDetails[1]);
                 } else {
-                    $this->conditionString .= ' AND ' . $filterDetails[0] . $equation . '"?"';
+                    $this->conditionString .= ' AND ' . $filterDetails[0] . $equation . '?';
                     array_push($this->conditionParams, $filterDetails[1]);
                 }
 
@@ -168,10 +168,10 @@ class QueryParser {
      * Parse projection string and include it in the selected fields
      *
      * @param array $availableFields - Available fields in the model
-     * @param string $projections - Projections string
+     * @param string|null $projections - Projections string
      * @throws QueryException
      */
-    public function parseProjection(array $availableFields, string $projections) {
+    public function parseProjection(array $availableFields, $projections) {
         if($projections != null) {
 
             $projectionArray = explode(',', $projections);
@@ -207,10 +207,10 @@ class QueryParser {
      * Parse sorting string and include it in the order by condition
      *
      * @param array $availableFields - Available fields in the model
-     * @param string $sorting - Sorting string
+     * @param string|null $sorting - Sorting string
      * @throws QueryException
      */
-    public function parseSorting(array $availableFields, string $sorting) {
+    public function parseSorting(array $availableFields, $sorting) {
         if($sorting != null) {
 
             $sortingArray = explode(',', $sorting);

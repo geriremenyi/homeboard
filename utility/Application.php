@@ -158,7 +158,7 @@ class Application {
     public function checkAuthorization(string $authHeader) {
 
         // No authorization header given -> unauthorized
-        if($authHeader == '') {
+        if($authHeader === '') {
             $error = array();
             $error['code'] = 401;
             $error['message'] = Language::translate('resty_error', 'empty_auth_header');
@@ -168,17 +168,16 @@ class Application {
         }
 
         // Client authorization
-        if(strpos($authHeader, 'Basic') == 0) {
+        if(strpos($authHeader, 'Basic') === 0) {
             // Validate client
             $newClient = new Client(Configuration::getInstance());
             $newClient->validate(str_replace('Basic ', '', $authHeader));
             Application::$client = $newClient;
 
-            // Empty api user
-            Application::$user = new ApiUser(Configuration::getInstance());
+            // Empty ApiUser
         }
         // User authentication
-        elseif(strpos($authHeader, 'Bearer') == 0) {
+        elseif(strpos($authHeader, 'Bearer') === 0) {
             $user = new ApiUser(Configuration::getInstance());
             $user->validate(str_replace('Bearer ', '', $authHeader));
             Application::$user = $user;

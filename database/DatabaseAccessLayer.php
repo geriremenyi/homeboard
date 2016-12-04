@@ -47,7 +47,7 @@ class DatabaseAccessLayer {
      * @return Model
      * @throws DatabaseException
      */
-    public function getOne(int $id) : Model {
+    public function getOne(int $id) {
         $sql = 'SELECT * FROM ' . $this->model->getTableName() . ' WHERE id=?;';
 
         $command= new DatabaseCommand($this->dbConn, $sql);
@@ -65,7 +65,7 @@ class DatabaseAccessLayer {
      * @param string $sorting - Sort query string
      * @return array
      */
-    public function getList(string $searchKey = null, string $filters = null, string $projections = null, string $sorting = null) : array {
+    public function getList($searchKey = null, $filters = null, $projections = null, $sorting = null) : array {
         // Parse the incoming parameters
         $parser = new QueryParser();
         $parser->parseSearch($this->model->getSearchableFields(), $searchKey);
@@ -73,14 +73,13 @@ class DatabaseAccessLayer {
         $parser->parseProjection($this->model->getAvailableFields(), $projections);
         $parser->parseSorting($this->model->getAvailableFields(), $sorting);
 
-
         if(($fields = $parser->getFieldList()) == '') {
             $select = 'SELECT *';
         } else {
             $select = 'SELECT' . $fields;
         }
 
-        if(($condition = $parser->getConditionParams()) == '') {
+        if(($condition = $parser->getConditionString()) == '') {
             $where = '';
             $whereParams = null;
         } else {
@@ -99,34 +98,109 @@ class DatabaseAccessLayer {
         $command = new DatabaseCommand($this->dbConn, $sql);
         $command->execute($whereParams);
 
-        return $command->fetchClassAll(get_class($this->model));
+        $classes = $command->fetchClassAll(get_class($this->model));
+
+        if(($fields = $parser->getFieldList()) != '') {
+            $include = explode(',', str_replace(' ', '', $fields));
+            foreach ($classes as $class) {
+                $class->setIncludedFields($include);
+            }
+        }
+
+
+        return $classes;
     }
 
     /**
      * Create a new instance in the database
      */
     public function create() {
+        $insertSql = 'INSERT INTO ' . $this->model->getTableName() . ' (';
 
+        $fields = $this->model->getCreateFieldsMapping();
+
+        $i = 0;
+        foreach($fields as $key => $field) {
+            if($i != 0) {
+                $insertSql .= ', ' . $key;
+            } else {
+                $insertSql .= $key;
+            }
+            $i++;
+        }
+
+        $insertSql .= ') VALUES (';
+
+        $i = 0;
+        $params = [];
+        foreach($fields as $field) {
+            if($i != 0) {
+                $insertSql .= ', ?';
+            } else {
+                $insertSql .= '?';
+            }
+            array_push($params, $field);
+            $i++;
+        }
+
+        $insertSql .= ');';
+
+        $command = new DatabaseCommand($this->dbConn, $insertSql);
+        $command->execute($params);
+        $this->model->setId($this->dbConn->lastInsertId());
     }
 
     /**
      * Update and instance in the database
      *
      * @param int $id - Id of the updateable instance
+     * @return int
      */
-    public function update(int $id) {
+    public function update(int $id) : int {
+        // If something looks stupid but works
+        // then it is not stupid
+        $updateSql = 'UPDATE ' . $this->model->getTableName() . ' SET ';
 
+        $fields = $this->model->getCreateFieldsMapping();
+
+        $i = 0;
+        foreach($fields as $key => $field) {
+            if($i != 0) {
+                $updateSql .= ', ' . $key . '=?';
+            } else {
+                $updateSql .= $key . '=?';
+            }
+            $i++;
+        }
+
+        $updateSql .= ' WHERE id=?;';
+
+        $params = [];
+        foreach($fields as $key => $field) {
+            array_push($params, $field);
+        }
+        array_push($params, $id);
+
+        $command = new DatabaseCommand($this->dbConn, $updateSql);
+        $command->execute($params);
+
+        $this->model->setId($id);
+
+        return $command->rowCount();
     }
 
     /**
      * Delete an instance in the database
      *
      * @param int $id - Id of the deletable instance
+     * @return int
      */
-    public function delete(int $id) {
+    public function delete(int $id) : int{
         $sql = 'DELETE FROM ' . $this->model->getTableName() . ' WHERE id=?';
 
         $command = new DatabaseCommand($this->dbConn,$sql);
         $command->execute(array($id));
+
+        return $command->rowCount();
     }
 }

@@ -61,7 +61,12 @@ class DatabaseCommand {
                 throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString);
             }
         } catch (\PDOException $e) {
-            throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage());
+            if(is_integer($e->getCode())) {
+                throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage(), $e->getCode());
+            } else {
+                throw new DatabaseException('Could not execute statement: ' . $this->stmt->queryString . PHP_EOL . 'Error message: ' . $e->getMessage());
+            }
+
         }
     }
 
@@ -71,7 +76,7 @@ class DatabaseCommand {
      *
      * @return array
      */
-    public function fetchAssoc() : array {
+    public function fetchAssoc() {
         return $this->stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
@@ -101,8 +106,17 @@ class DatabaseCommand {
      * @param string $className - Name of the class to fetch the row into
      * @return Model
      */
-    public function fetchClass(string $className) : Model{
-        return $this->stmt->fetch(\PDO::FETCH_CLASS, $className);
+    public function fetchClass(string $className) {
+        $modelAssocArray = $this->stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if($modelAssocArray == false) {
+            return false;
+        }
+
+        $model = new $className();
+        $model->createFromArray($modelAssocArray);
+
+        return $model;
     }
 
 

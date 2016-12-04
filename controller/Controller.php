@@ -3,6 +3,7 @@
 namespace Resty\Controller;
 
 use Resty\Exception\ServerException;
+use Resty\Utility\Application;
 use Zend\Diactoros\ {
     ServerRequest, Response
 };
@@ -32,5 +33,9 @@ abstract class Controller {
         $this->response = $response;
         $this->query = $query;
         $this->chain = $chain;
+    }
+
+    public function checkAuthentication() : bool {
+        return Application::$user == null ? false : true;
     }
 }

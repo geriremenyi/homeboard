@@ -147,13 +147,13 @@ class Router {
      */
     public function getQuery(string $queryString) : array {
         $queryArray = [];
-        $queries = explode('&', $queryString);
+        $queries = explode('&', urldecode($queryString));
 
         // TODO handle invalid inputs
 
         foreach($queries as $query) {
             if(strpos($query, 'filter') !== false) {
-                $value = trim($query, 'filter=()');
+                $value = rtrim(str_replace('filter=(', '' ,$query),')');
                 $queryArray['filter'] = $value;
             } else {
                 $keyValue = explode('=', $query);

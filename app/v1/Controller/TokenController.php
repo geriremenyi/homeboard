@@ -28,7 +28,17 @@ class TokenController extends Controller {
         parent::__construct($request, $response, $query, $chain);
     }
 
-    public function post() {
+    public function post($id) {
+        // No id can be specified in this request
+        if($id != null) {
+            $error = [];
+            $error['code'] = 404;
+            $error['message'] = Language::translate('resty_error', 'id_given_error');
+            $error['errors'] = [];
+
+            throw new AppException(json_encode($error), 400);
+        }
+
         // No chain call
         if ($this->chain != null) {
             $error = [];
@@ -80,7 +90,7 @@ class TokenController extends Controller {
         if(count($body) != 0) {
             $wrongRequest = true;
             foreach($body as $attribute => $value) {
-                array_push($errorDetails, Language::translateWithVars('resty_error', 'missing_attribute', $attribute));
+                array_push($errorDetails, Language::translateWithVars('resty_error', 'no_such_attribute', $attribute));
             }
         }
 
@@ -93,13 +103,14 @@ class TokenController extends Controller {
             throw new AppException(json_encode($error), 400);
         }
 
-        $model = new UsersModel();
+        $user = new UsersModel();
 
-        if($user = $model->login($username, $password)) {
+        if($user->login($username, $password)) {
             $apiUser = new ApiUser(Configuration::getInstance());
+            $claims = $user->getClaims();
 
             $responseBody = [
-                'token' => $apiUser->generateToken($user->getClaims())
+                'token' => $apiUser->generateToken($claims)
             ];
 
             $this->response->getBody()->write(json_encode($responseBody));
@@ -107,7 +118,9 @@ class TokenController extends Controller {
             $error = [];
             $error['code'] = 400;
             $error['message'] = Language::translate('resty_error', 'login_error');
-            $error['errors'] = $errorDetails;
+            $error['errors'] = [];
+
+            throw new AppException(json_encode($error), 400);
         }
     }
 
