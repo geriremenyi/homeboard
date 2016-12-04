@@ -1,3 +1,5 @@
 # #Gitignore
 .idea/
 vendor/
+bin/
+docs/
