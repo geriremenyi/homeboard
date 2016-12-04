@@ -12,9 +12,9 @@ class QueryParserTest extends \PHPUnit_Framework_TestCase {
 
         $parser->parseSearch(['name', 'description'], 'keyword');
 
-        self::assertEquals(' (name LIKE %"?"% OR description LIKE %"?"%)', $parser->getConditionString());
-        self::assertEquals('keyword', $parser->getConditionParams()[0]);
-        self::assertEquals('keyword', $parser->getConditionParams()[1]);
+        self::assertEquals(' (name LIKE ? OR description LIKE ?)', $parser->getConditionString());
+        self::assertEquals('%keyword%', $parser->getConditionParams()[0]);
+        self::assertEquals('%keyword%', $parser->getConditionParams()[1]);
     }
 
     public function testFilterInvalid() {
@@ -38,7 +38,7 @@ class QueryParserTest extends \PHPUnit_Framework_TestCase {
 
         $parser->parseFilter(['name', 'description'], 'name=Janos,description<>leiras');
 
-        self::assertEquals(' (name="?" AND description<>"?")', $parser->getConditionString());
+        self::assertEquals(' (name=? AND description<>?)', $parser->getConditionString());
         self::assertEquals('Janos', $parser->getConditionParams()[0]);
         self::assertEquals('leiras', $parser->getConditionParams()[1]);
     }
