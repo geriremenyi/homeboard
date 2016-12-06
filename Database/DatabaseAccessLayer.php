@@ -19,6 +19,8 @@ use Resty\Utility\QueryParser;
 class DatabaseAccessLayer {
 
     /**
+     * DB connection
+     *
      * @var \PDO
      */
     private $dbConn;

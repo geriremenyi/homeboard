@@ -2,10 +2,8 @@
 
 namespace Resty\Controller;
 
-use Resty\Utility\Application;
-use Zend\Diactoros\ {
-    ServerRequest, Response
-};
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\Response;
 
 /**
  * Controller class

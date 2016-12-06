@@ -3,19 +3,17 @@
 namespace Resty\Auth;
 
 use Emarref\Jwt\Algorithm\Hs256;
-use Emarref\Jwt\Claim\ {
-    Expiration, IssuedAt, PrivateClaim
-};
+use Emarref\Jwt\Claim\Expiration;
+use Emarref\Jwt\Claim\IssuedAt;
+use Emarref\Jwt\Claim\PrivateClaim;
 use Emarref\Jwt\Encryption\Factory;
 use Emarref\Jwt\Exception\ExpiredException;
-use Emarref\Jwt\ {
-    Jwt, Token
-};
+use Emarref\Jwt\Jwt;
+use Emarref\Jwt\Token;
 use Emarref\Jwt\Verification\Context;
 use Resty\Exception\AuthException;
-use Resty\Utility\ {
-    Configuration, Language
-};
+use Resty\Utility\Configuration;
+use Resty\Utility\ Language;
 
 /**
  * Api User

@@ -8,9 +8,8 @@ use Resty\Controller\Controller;
 use Resty\Exception\AppException;
 use Resty\Utility\Configuration;
 use Resty\Utility\Language;
-use Zend\Diactoros\ {
-    ServerRequest, Response
-};
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\Response;
 
 /**
  * TokenController
@@ -24,6 +23,14 @@ use Zend\Diactoros\ {
  */
 class TokenController extends Controller {
 
+    /**
+     * TokenController constructor.
+     *
+     * @param ServerRequest $request - Request from the client
+     * @param Response $response - Response to the client
+     * @param null|string $query - Query string
+     * @param array|null $chain - Controller chain
+     */
     public function __construct(ServerRequest $request, Response $response, $query, $chain) {
         parent::__construct($request, $response, $query, $chain);
     }

@@ -2,9 +2,8 @@
 
 namespace Resty\Utility;
 
-use Resty\Exception\ {
-    FileNotFoundException, InvalidParametersException
-};
+use Resty\Exception\FileNotFoundException;
+use Resty\Exception\InvalidParametersException;
 
 /**
  * Configuration

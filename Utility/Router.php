@@ -3,9 +3,9 @@
 namespace Resty\Utility;
 
 use Resty\Exception\HttpException;
-use Zend\Diactoros\{
-    Response, ServerRequest, Uri
-};
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\Uri;
 
 /**
  * Router

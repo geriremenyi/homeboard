@@ -104,6 +104,11 @@ class UsersModel extends Model {
         return ['username'];
     }
 
+    /**
+     * Get claims of the user
+     *
+     * @return array
+     */
     public function getClaims() : array {
         return [
             'user_id' => $this->id,

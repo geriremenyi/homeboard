@@ -4,12 +4,12 @@ namespace Resty\Utility;
 
 use Resty\Auth\ApiUser;
 use Resty\Auth\Client;
-use Resty\Exception\{
-    AuthException, HttpException, RestyException, ServerException
-};
-use Zend\Diactoros\{
-    ServerRequest, ServerRequestFactory, Response
-};
+use Resty\Exception\AuthException;
+use Resty\Exception\HttpException;
+use Resty\Exception\ServerException;
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\ServerRequestFactory;
+use Zend\Diactoros\Response;
 
 /**
  * Application
@@ -152,7 +152,6 @@ class Application {
      * Check if the authorization token is okay
      *
      * @param string $authHeader - Authorization header of the request
-     * @return bool
      * @throws HttpException
      */
     public function checkAuthorization(string $authHeader) {

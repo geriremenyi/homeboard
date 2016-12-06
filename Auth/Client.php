@@ -2,12 +2,10 @@
 
 namespace Resty\Auth;
 
-use Resty\Utility\ {
-    Configuration, Language
-};
-use Resty\Exception\{
-    InvalidParametersException, AuthException
-};
+use Resty\Utility\Configuration;
+use Resty\Utility\Language;
+use Resty\Exception\InvalidParametersException;
+use Resty\Exception\AuthException;
 
 /**
  * Client class

@@ -1,8 +1,7 @@
 <?php
 
 namespace Resty\Utility;
-use Resty\Exception\AuthException;
-use Resty\Exception\InvalidParametersException;
+
 use Resty\Exception\QueryException;
 
 /**
@@ -88,7 +87,7 @@ class QueryParser {
      * Parse filters and expand the sql condition with it
      *
      * @param array $availableFields - Available fields in the model
-     * @param string $filters|null - Filters string
+     * @param string|null $filters - Filters string
      * @throws QueryException
      */
     public function parseFilter(array $availableFields, $filters) {

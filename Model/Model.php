@@ -44,6 +44,11 @@ abstract class Model {
         $this->dal = new DatabaseAccessLayer($this);
     }
 
+    /**
+     * Create a model from class
+     *
+     * @param array $attributes - Attributes of the model
+     */
     public function createFromArray(array $attributes) {
         foreach($attributes as $key => $value) {
             $normalizedKey = str_replace(' ', '', lcfirst(ucwords(str_replace('_', ' ', $key))));
@@ -167,6 +172,11 @@ abstract class Model {
         $this->id = $id;
     }
 
+    /**
+     * Class to string
+     *
+     * @return string
+     */
     public function __toString() {
         $fields = [];
 
